@@ -10,7 +10,7 @@ use Path::Class;
 
 our $VERSION = '0.02';
 
-__PACKAGE__->mk_accessors(qw(cache base binds verifier));
+use Plack::Util::Accessor qw(cache base binds verifier);
 
 sub call {
 	my ($self, $env) = @_;
@@ -45,12 +45,12 @@ sub call {
 		# Cache control:
 		# IE requires both Last-Modified and Etag to ignore checking updates.
 		return [200, [
-                    "Cache-Control" => "public; max-age=315360000; s-maxage=315360000",
-                    "Expires" => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years => 10)),
-                    "Last-Modified" => DateTime::Format::HTTP->format_datetime(DateTime->from_epoch(epoch => 0)),
-                    "ETag" => $etag,
-                    "Content-Type" => $static->{content_type},
-                ], [ $content ]];
+			"Cache-Control" => "public; max-age=315360000; s-maxage=315360000",
+			"Expires" => DateTime::Format::HTTP->format_datetime(DateTime->now->add(years => 10)),
+			"Last-Modified" => DateTime::Format::HTTP->format_datetime(DateTime->from_epoch(epoch => 0)),
+			"ETag" => $etag,
+			"Content-Type" => $static->{content_type},
+		], [ $content ]];
 	}
 
 	$self->app->($env);
