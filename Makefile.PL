@@ -24,7 +24,6 @@ all_from 'lib/Plack/Middleware/StaticShared.pm';
 
 requires 'parent';
 requires 'Plack';
-requires 'Plack::Request';
 requires 'DateTime';
 requires 'DateTime::Format::HTTP';
 requires 'Digest::SHA1';
