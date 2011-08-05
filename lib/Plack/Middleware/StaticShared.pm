@@ -14,11 +14,6 @@ our $VERSION = '0.02';
 
 __PACKAGE__->mk_accessors(qw(cache base binds verifier));
 
-sub new {
-	my ($class, @args) = @_;
-	my $self = $class->SUPER::new(@args);
-}
-
 sub call {
 	my ($self, $env) = @_;
 	for my $static (@{ $self->binds }) {
