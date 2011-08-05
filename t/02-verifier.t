@@ -8,11 +8,11 @@ use Plack::Test;
 use Cache::MemoryCache;
 use HTTP::Request::Common;
 
+use Plack::Middleware::Static;
 use Plack::Middleware::StaticShared;
 
 my $m = Plack::Middleware::StaticShared->new({
 	cache => Cache::MemoryCache->new,
-	base  => 't/static/',
 	verifier => sub {
 		my ($version, $prefix) = @_;
 		/v\d/
@@ -29,9 +29,13 @@ my $m = Plack::Middleware::StaticShared->new({
 	]
 });
 
-$m->wrap(sub {
+$m->wrap(Plack::Middleware::Static->new({
+	path => qr'^/',
+	root => 't/static',
+	pass_through => 1,
+})->wrap(sub {
 	[200, [ 'Content-Type' => 'text/plain' ], [ 'app' ]  ]
-});
+}));
 
 test_psgi $m => sub { my $server = shift;
 	subtest "ok" => sub {

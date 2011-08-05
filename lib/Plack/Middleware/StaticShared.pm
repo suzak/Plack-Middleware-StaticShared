@@ -6,11 +6,11 @@ use parent qw(Plack::Middleware);
 use Digest::SHA1 qw(sha1_hex);
 use DateTime::Format::HTTP;
 use DateTime;
-use Path::Class;
+use Plack::Util;
 
 our $VERSION = '0.02';
 
-use Plack::Util::Accessor qw(cache base binds verifier);
+use Plack::Util::Accessor qw(cache binds verifier);
 
 sub call {
 	my ($self, $env) = @_;
@@ -33,7 +33,7 @@ sub call {
 		my $content = eval {
 			my $ret = $self->cache->get($key);
 			if (not defined $ret) {
-				$ret = $self->concat(split /,/, $files);
+				$ret = $self->concat($env, split /,/, $files);
 				$ret = $static->{filter}->(local $_ = $ret) if $static->{filter};
 				$self->cache->set($key => $ret);
 			}
@@ -57,14 +57,16 @@ sub call {
 }
 
 sub concat {
-	my ($self, @files) = @_;
-	my $base = dir($self->base);
-	join("",
-		map {
-			$base->file($_)->slurp;
-		}
-		@files
-	);
+	my ($self, $env, @files) = @_;
+	return join '', map {
+		local $env->{PATH_INFO} = $_;
+		my $res = $self->app->($env);
+		ref $res eq 'ARRAY' && $res->[0] == 200 ? do {
+			my $static;
+			Plack::Util::foreach($res->[2], sub { $static .= $_[0] });
+			$static;
+		} : '';
+	} @files;
 }
 
 1;
