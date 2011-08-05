@@ -4,7 +4,6 @@ use warnings;
 
 use parent qw(Plack::Middleware);
 use Plack::Request;
-use LWP::Simple qw($ua);
 use Digest::SHA1 qw(sha1_hex);
 use DateTime::Format::HTTP;
 use DateTime;
