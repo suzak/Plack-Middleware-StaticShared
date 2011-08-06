@@ -19,7 +19,7 @@ sub call {
 		# Some browsers (eg. Firefox) always access if the url has query string,
 		# so use `:' for parameters
 		my ($version, $files) = ($env->{PATH_INFO} =~ /^$prefix:([^:\s]{1,32}):(.+)$/) or next;
-		if ($self->verifier && !$self->verifier->(local $_ = $version, $prefix)) {
+		if ($self->verifier && !$self->verifier->(local $_ = $version, $prefix, $files)) {
 			return [400, [ ], [ ]];
 		}
 
